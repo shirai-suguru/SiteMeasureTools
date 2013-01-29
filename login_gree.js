@@ -1,5 +1,5 @@
 //TODO  parameter setting split file
-const CONSOLE_LOG_ON   = false;
+const CONSOLE_LOG_ON   = true;
 
 console.debuglog = function(msg){
     if( CONSOLE_LOG_ON == true ) {
@@ -59,13 +59,24 @@ page.onConsoleMessage = function(msg) {
 // Global variables
 var nextUrl = "";
 var imgNum = 1;
+var loadInProgress = false;
 
 // Global Functions
 function pageLoadWait ( page ) {
     var deferredObj = new Deferred();
 
+
+page.onLoadStarted = function() {
+  loadInProgress = true;
+  console.debuglog("load started:" + page.frameUrl + "\n             " + page.url);
+};
+
+
     page.onLoadFinished = function(){
+        loadInProgress = false;
+        console.debuglog("href:" + page.evaluate(function(){return location.href}));
         page.onLoadFinished = function(){};
+        console.debuglog("load finished");
         deferredObj.call();
     }
     return deferredObj;
@@ -74,8 +85,16 @@ function pageLoadWait ( page ) {
 function pageOpenLoadWait( url, page ) {
     var deferredObj = new Deferred();
 
+page.onLoadStarted = function() {
+  loadInProgress = true;
+  console.debuglog("load started:" + page.frameUrl + "\n             " + page.url);
+};
+
     page.onLoadFinished = function(){
+        loadInProgress = false;
+        console.debuglog("href:" + page.evaluate(function(){return location.href}));
         page.onLoadFinished = function(){};
+        console.debuglog("load finished");
         deferredObj.call();
     }
     page.open(url,function(status){
