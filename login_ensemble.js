@@ -44,9 +44,9 @@ page.onInitialized = function() {
 };
 
 
-//page.onConsoleMessage = function(msg) {
-//  console.log(msg);
-//};
+page.onConsoleMessage = function(msg) {
+  console.log(msg);
+};
 
 // Global variables
 var nextUrl = "";
@@ -93,6 +93,7 @@ function pageOpenLoadWait( url, page ) {
 }
 
 function until(fn, options, d){
+console.log("d:" + d);
   var options = options || {};
   var retry = options["retry"] || 5;
   var wait = options["wait"] || 1;
@@ -111,6 +112,7 @@ function until(fn, options, d){
         }
         until(fn, options, d);
       }, wait * 1000);
+console.log("id:" + id );
     }
   }, 0);
   d.canceller = function(){
@@ -182,53 +184,96 @@ next(function() {
 
 }).next(function() {
 
-//    return pageOpenLoadWait(nextUrl , page );
-        console.log("next:" + nextUrl);
+
+    //return pageOpenLoadWait(nextUrl , page );
+//    pageOpenLoadWait(nextUrl , page );
+//}).next(function() {
+        console.log("next:1:" + nextUrl);
+
+    var deferredObj = new Deferred();
+
+    page.onLoadFinished = function(){
+        page.onLoadFinished = function(){};
+        deferredObj.call();
+    }
+
+        console.log("deferred:1:" + deferredObj);
+        console.log("imgNum:1:" + imgNum);
 //    deferredObj = pageOpenLoadWait(nextUrl , page );
 
-
-        var obj =  page.open(nextUrl,function(status){
+        page.open(nextUrl,function(status){
+console.log("hoge");
+//    deferredObj = new Deferred();
             if( status != "success" ) {
                 console.log("fail:" + status + ":" + imgNum++);
                 console.log("url:" + url);
             } else {
                 console.log("success:" + imgNum++);
-//                deferredObj.call();
-                return until(function(){
-                    var title = page.evaluate(function() {
-                        return document.title;
-                    });
-                    console.log("koko");
-                    return (title.indexOf(G_SEARCH_APPLI_TITLE) > -1);
-                },null,deferredObj);
-		return tmp;
-
             }
+//                deferredObj.call();
+//
+            return until(function(){
+                var title = page.evaluate(function(){
+                    return document.title;
+                });
+                console.log("t-tile" + title);
+            });
         });
-        var obj = obj || new Deferred();
+        console.log("imgNum:2:" + imgNum);
+return deferredObj;
+                
+                return until(function(){
+ page.injectJs("./" + G_APPLI_ID + "_conf.js");
+                    var title = page.evaluate(function() {
+ page.injectJs("./" + G_APPLI_ID + "_conf.js");
+                        //return document.title;
+                        return document.getElementsByClassName(G_MYPAGE_CLASSNAME)[0].childNodes[1].getAttribute("href");
+                    });
+                    console.log("title:"  + title);
+                    console.log("koko");
+                    console.log(title.indexOf(G_SEARCH_APPLI_TITLE) > -1);
+                    console.log(title.indexOf(G_MYPAGE_CLASSNAME) > -1);
+                    //if (title.indexOf(G_SEARCH_APPLI_TITLE) > -1) {
+                    if (title.indexOf(G_MYPAGE_CLASSNAME) > -1) {
+                        console.log("koko true" );
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
 
-	return obj;
+//		return tmp;
+//
+//            }
+//        });
+//console.log("obj:" + obj);
+//        var obj = obj || new Deferred();
+//
+//	return obj;
 
 
 
 }).next(function() {
+    console.log("img:" + G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
     page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
 
 }).next(function() {
 
     nextUrl = getMypageUrl(page);
+    console.log("nextUrl_1::" + nextUrl );
 
 }).next(function() {
     t = Date.now();
     page.open(nextUrl,function(status) {
         if( status != "success" ) {
-    } else {
-        t = Date.now() - t;
-        console.log('Loading time ' + t + ' msec');
-        page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
-    }
+        } else {
+            t = Date.now() - t;
+            console.log('Loading time ' + t + ' msec');
+            page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
+        }
         phantom.exit();
     });
+//        phantom.exit();
 
 }).error(function(args){
     console.log(JSON.stringify(args));
