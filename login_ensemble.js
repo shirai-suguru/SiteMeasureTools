@@ -64,6 +64,7 @@ function pageLoadWait ( page ) {
 }
 
 function pageOpenLoadWait( url, page ) {
+    console.log("pageWaitUrl:" + url);
     console.log("pageWait:" + imgNum++);
     var deferredObj = new Deferred();
 
@@ -75,50 +76,12 @@ function pageOpenLoadWait( url, page ) {
         if( status != "success" ) {
             console.log("fail:" + status + ":" + imgNum++);
             console.log("url:" + url);
+            //deferredObj.call();
         } else {
             console.log("success:" + imgNum++);
-            deferredObj.call();
         }
     });
     return deferredObj;
-//    deferredObj = pageLoadWait( page );
-//
-//    page.open(url,function(status){
-//        if( status != "success" ) {
-//        } else {
-//            deferredObj.call();
-//        }
-//    });
-//    return deferredObj;
-}
-
-function until(fn, options, d){
-console.log("d:" + d);
-  var options = options || {};
-  var retry = options["retry"] || 5;
-  var wait = options["wait"] || 1;
-  var d = d || new Deferred();
-  var id;
-  var result = fn();
-  setTimeout(function(){
-    if(result){
-      d.call();
-    }else{
-      id = setTimeout(function(){
-          console.log("retry:" + retry);
-        options["retry"] = --retry;
-        if(options["retry"] == 0){
-          d.fail("retry over");
-        }
-        until(fn, options, d);
-      }, wait * 1000);
-console.log("id:" + id );
-    }
-  }, 0);
-  d.canceller = function(){
-    clearTimeout(id);
-  }
-  return d;
 }
 
 // Main
@@ -166,9 +129,8 @@ next(function() {
 
 }).next(function() {
 
-//    return pageOpenLoadWait(G_APPLI_URL , page );
-        pageOpenLoadWait(G_APPLI_URL , page );
-        return wait(3);
+    pageOpenLoadWait(G_APPLI_URL , page );
+    return wait(3);
 
 }).next(function() {
     page.render(G_APPLI_ID + G_IMAGE_SUFFIX);
@@ -184,83 +146,15 @@ next(function() {
 
 }).next(function() {
 
-
-    //return pageOpenLoadWait(nextUrl , page );
-//    pageOpenLoadWait(nextUrl , page );
-//}).next(function() {
-        console.log("next:1:" + nextUrl);
-
-    var deferredObj = new Deferred();
-
-    page.onLoadFinished = function(){
-        page.onLoadFinished = function(){};
-        deferredObj.call();
-    }
-
-        console.log("deferred:1:" + deferredObj);
-        console.log("imgNum:1:" + imgNum);
-//    deferredObj = pageOpenLoadWait(nextUrl , page );
-
-        page.open(nextUrl,function(status){
-console.log("hoge");
-//    deferredObj = new Deferred();
-            if( status != "success" ) {
-                console.log("fail:" + status + ":" + imgNum++);
-                console.log("url:" + url);
-            } else {
-                console.log("success:" + imgNum++);
-            }
-//                deferredObj.call();
-//
-            return until(function(){
-                var title = page.evaluate(function(){
-                    return document.title;
-                });
-                console.log("t-tile" + title);
-            });
-        });
-        console.log("imgNum:2:" + imgNum);
-return deferredObj;
-                
-                return until(function(){
- page.injectJs("./" + G_APPLI_ID + "_conf.js");
-                    var title = page.evaluate(function() {
- page.injectJs("./" + G_APPLI_ID + "_conf.js");
-                        //return document.title;
-                        return document.getElementsByClassName(G_MYPAGE_CLASSNAME)[0].childNodes[1].getAttribute("href");
-                    });
-                    console.log("title:"  + title);
-                    console.log("koko");
-                    console.log(title.indexOf(G_SEARCH_APPLI_TITLE) > -1);
-                    console.log(title.indexOf(G_MYPAGE_CLASSNAME) > -1);
-                    //if (title.indexOf(G_SEARCH_APPLI_TITLE) > -1) {
-                    if (title.indexOf(G_MYPAGE_CLASSNAME) > -1) {
-                        console.log("koko true" );
-                        return true;
-                    } else {
-                        return false;
-                    }
-                });
-
-//		return tmp;
-//
-//            }
-//        });
-//console.log("obj:" + obj);
-//        var obj = obj || new Deferred();
-//
-//	return obj;
-
-
+    return pageOpenLoadWait(nextUrl , page );
 
 }).next(function() {
-    console.log("img:" + G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
+
     page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
 
 }).next(function() {
 
     nextUrl = getMypageUrl(page);
-    console.log("nextUrl_1::" + nextUrl );
 
 }).next(function() {
     t = Date.now();
@@ -273,7 +167,6 @@ return deferredObj;
         }
         phantom.exit();
     });
-//        phantom.exit();
 
 }).error(function(args){
     console.log(JSON.stringify(args));
