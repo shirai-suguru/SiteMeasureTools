@@ -1,15 +1,24 @@
 //TODO  parameter setting split file
-const G_APPLI_ID       = '58124';
-const G_APPLI_URL      = 'http://pf.gree.net/' + G_APPLI_ID;
+const CONSOLE_LOG_ON   = false;
 
-//var args = require('system').args;
-//
-//if ( args.length !== 1 ) {
-//    console.log("You should enter application Id !");
-//    phantom.exit(1);
-//} else {
-//    console.log(args[0]);
-//}
+console.debuglog = function(msg){
+    if( CONSOLE_LOG_ON == true ) {
+        console.log(msg);
+    }
+};
+
+var args = require('system').args;
+
+var appliId  = 'XXXXX';
+if ( args.length !== 2 ) {
+    console.log("You should enter application Id !");
+    phantom.exit(1);
+} else {
+    console.debuglog(args[1]);
+    appliId = args[1];
+}
+
+var appliUrl = 'http://pf.gree.net/' + appliId;
 
 // jsdeferred.js require
 if(!phantom.injectJs("jsdeferred.js")){
@@ -18,8 +27,8 @@ if(!phantom.injectJs("jsdeferred.js")){
     phantom.exit(1);
 }
 
-if(!phantom.injectJs(G_APPLI_ID + "_conf.js")){
-    console.log("You should have ./" + G_APPLI_ID +"_conf.js");
+if(!phantom.injectJs(appliId + "_conf.js")){
+    console.log("You should have ./" + appliId +"_conf.js");
     phantom.exit(1);
 }
 
@@ -43,9 +52,8 @@ page.onInitialized = function() {
     });
 };
 
-
 page.onConsoleMessage = function(msg) {
-  console.log(msg);
+    console.debuglog("console.log" + msg );
 };
 
 // Global variables
@@ -64,8 +72,6 @@ function pageLoadWait ( page ) {
 }
 
 function pageOpenLoadWait( url, page ) {
-    console.log("pageWaitUrl:" + url);
-    console.log("pageWait:" + imgNum++);
     var deferredObj = new Deferred();
 
     page.onLoadFinished = function(){
@@ -74,11 +80,11 @@ function pageOpenLoadWait( url, page ) {
     }
     page.open(url,function(status){
         if( status != "success" ) {
-            console.log("fail:" + status + ":" + imgNum++);
-            console.log("url:" + url);
+            console.debuglog("fail:" + status + ":" + imgNum++ );
+            console.debuglog("url:" + url );
             //deferredObj.call();
         } else {
-            console.log("success:" + imgNum++);
+            console.debuglog("success:" + imgNum++ );
         }
     });
     return deferredObj;
@@ -90,7 +96,7 @@ next(function() {
 
 }).next(function() {
 
-    page.injectJs("./" + G_APPLI_ID + "_conf.js");
+    page.injectJs("./" + appliId + "_conf.js");
     //Enter Credentials
     page.evaluate(function() {
           var login_id     = document.getElementById("user_mail");
@@ -129,15 +135,15 @@ next(function() {
 
 }).next(function() {
 
-    pageOpenLoadWait(G_APPLI_URL , page );
+    pageOpenLoadWait(appliUrl , page );
     return wait(3);
 
 }).next(function() {
-    page.render(G_APPLI_ID + G_IMAGE_SUFFIX);
+    page.render(appliId + G_IMAGE_SUFFIX);
 
 }).next(function() {
 
-    page.injectJs("./" + G_APPLI_ID + "_conf.js");
+    page.injectJs("./" + appliId + "_conf.js");
 
     nextUrl = page.evaluate(function(){
         var arr = document.getElementById(G_IFRAME_ID);
@@ -150,7 +156,7 @@ next(function() {
 
 }).next(function() {
 
-    page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
+    page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
 
 }).next(function() {
 
@@ -163,7 +169,7 @@ next(function() {
         } else {
             t = Date.now() - t;
             console.log('Loading time ' + t + ' msec');
-            page.render(G_APPLI_ID + "_" + imgNum++ + G_IMAGE_SUFFIX);
+            page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
         }
         phantom.exit();
     });
