@@ -1,4 +1,4 @@
-//TODO  parameter setting split file
+// const
 const CONSOLE_LOG_ON   = true;
 
 console.debuglog = function(msg){
