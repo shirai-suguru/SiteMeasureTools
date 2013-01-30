@@ -1,4 +1,4 @@
-//const
+// const
 const CONSOLE_LOG_ON   = false;
 
 console.debuglog = function(msg){
