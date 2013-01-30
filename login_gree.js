@@ -1,5 +1,5 @@
-//TODO  parameter setting split file
-const CONSOLE_LOG_ON   = true;
+//const
+const CONSOLE_LOG_ON   = false;
 
 console.debuglog = function(msg){
     if( CONSOLE_LOG_ON == true ) {
@@ -20,13 +20,6 @@ if ( args.length !== 2 ) {
 
 var appliUrl = 'http://pf.gree.net/' + appliId;
 
-// jsdeferred.js require
-if(!phantom.injectJs("jsdeferred.js")){
-    console.log("You should have ./jsdeferred.js");
-    console.log("https://github.com/cho45/jsdeferred");
-    phantom.exit(1);
-}
-
 if(!phantom.injectJs(appliId + "_conf.js")){
     console.log("You should have ./" + appliId +"_conf.js");
     phantom.exit(1);
@@ -35,9 +28,6 @@ if(!phantom.injectJs(appliId + "_conf.js")){
 
 // page settings
 var page = require('webpage').create();
-
-// Deferred
-Deferred.define();
 
 // UserAgent
 page.settings.userAgent = G_USERAGENT;
@@ -57,14 +47,10 @@ page.onConsoleMessage = function(msg) {
 };
 
 // Global variables
-var nextUrl = "";
-var imgNum = 1;
+var sequenceNum = 0;
 var loadInProgress = false;
 
 // Global Functions
-function pageLoadWait ( page ) {
-    var deferredObj = new Deferred();
-
 
 page.onLoadStarted = function() {
   loadInProgress = true;
@@ -72,131 +58,114 @@ page.onLoadStarted = function() {
 };
 
 
-    page.onLoadFinished = function(){
-        loadInProgress = false;
-        console.debuglog("href:" + page.evaluate(function(){return location.href}));
-        page.onLoadFinished = function(){};
-        console.debuglog("load finished");
-        deferredObj.call();
-    }
-    return deferredObj;
-}
-
-function pageOpenLoadWait( url, page ) {
-    var deferredObj = new Deferred();
-
-page.onLoadStarted = function() {
-  loadInProgress = true;
-  console.debuglog("load started:" + page.frameUrl + "\n             " + page.url);
+page.onLoadFinished = function(){
+    loadInProgress = false;
+    console.debuglog("href:" + page.evaluate(function(){return location.href}));
 };
-
-    page.onLoadFinished = function(){
-        loadInProgress = false;
-        console.debuglog("href:" + page.evaluate(function(){return location.href}));
-        page.onLoadFinished = function(){};
-        console.debuglog("load finished");
-        deferredObj.call();
-    }
-    page.open(url,function(status){
-        if( status != "success" ) {
-            console.debuglog("fail:" + status + ":" + imgNum++ );
-            console.debuglog("url:" + url );
-            //deferredObj.call();
-        } else {
-            console.debuglog("success:" + imgNum++ );
-        }
-    });
-    return deferredObj;
-}
 
 // Main
-next(function() {
-    return pageOpenLoadWait(G_GREE_LOGIN_URL, page);
+var nextStep = [
+    //#1
+    nextUrl = "",
+    //#2
+    imgNum = 1,
+    //#3
+    function() {
+        page.open(G_GREE_LOGIN_URL);
+    },
+    //#4
+    function() {
 
-}).next(function() {
-
-    page.injectJs("./" + appliId + "_conf.js");
-    //Enter Credentials
-    page.evaluate(function() {
-          var login_id     = document.getElementById("user_mail");
-          var login_pass   = document.getElementById("user_password_login");
-          login_id.value   = G_EMAIL;
-          login_pass.value = G_PASSWORD;
-    });
-
-}).next(function() {
-
-    deferredObj = pageLoadWait( page );
-
-    //Login
-    page.evaluate(function() {
-        var delForm = document.getElementById('login_login');
-        if( delForm !== null ) {
-            delForm.parentNode.removeChild(delForm);
-        }
-        var loginFormDiv = document.getElementById('login-form');
-        var loginForm    = loginFormDiv.firstChild.firstChild;
-        if( loginForm !== null ) {
-            loginForm.submit();
-        } else {
-            var arr = document.getElementsByClassName("login-form");
-            var i;
-
-            for (i=0; i < arr.length; i++) {
-              loginForm = arr[i].firstChild;
-              loginForm.submit();
-              return ;
+        page.injectJs("./" + appliId + "_conf.js");
+        //Enter Credentials
+        page.evaluate(function() {
+            var login_id     = document.getElementById("user_mail");
+            var login_pass   = document.getElementById("user_password_login");
+            login_id.value   = G_EMAIL;
+            login_pass.value = G_PASSWORD;
+        });
+    },
+    //#5
+    function() {
+        //Login
+        page.evaluate(function() {
+            var delForm = document.getElementById('login_login');
+            if( delForm !== null ) {
+                delForm.parentNode.removeChild(delForm);
             }
-        }
+            var loginFormDiv = document.getElementById('login-form');
+            var loginForm    = loginFormDiv.firstChild.firstChild;
+            if( loginForm !== null ) {
+                loginForm.submit();
+            } else {
+                var arr = document.getElementsByClassName("login-form");
+                var i;
 
-    });
-    return deferredObj;
+                for (i=0; i < arr.length; i++) {
+                    loginForm = arr[i].firstChild;
+                    loginForm.submit();
+                    return ;
+                }
+            }
+        });
+    },
+    //#6
+    function() {
+        page.open( appliUrl );
+    },
+    //#7
+    function() {
+        page.render(appliId + G_IMAGE_SUFFIX);
+    },
+    //#8
+    function() {
+        page.injectJs("./" + appliId + "_conf.js");
 
-}).next(function() {
+        nextUrl = page.evaluate(function(){
+            var arr = document.getElementById(G_IFRAME_ID);
+            return arr.src;
+        });
+    },
+    //#9
+    function() {
+        page.open( nextUrl );
+    },
+    //#10
+    function() {
+        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
+    },
+    //#11
+    function() {
+        nextUrl = getMypageUrl(page);
+    },
+    //#12
+    function() {
+        t = Date.now();
+        page.open(nextUrl,function(status) {
+            if( status != "success" ) {
+            } else {
+                t = Date.now() - t;
+                console.log('Loading time ' + t + ' msec');
+                page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
+            }
+            phantom.exit();
+        });
+    },
+];
 
-    pageOpenLoadWait(appliUrl , page );
-    return wait(3);
+var nextLoop = setInterval( function() {
+    if (!loadInProgress && typeof nextStep[sequenceNum] == "function" ) {
+        console.debuglog("sequence: " + (sequenceNum + 1) );
+        nextStep[sequenceNum]();
+        sequenceNum++;
+    } else if (!loadInProgress && typeof nextStep[sequenceNum] == "string" ) {
+        console.debuglog("sequence: " + (sequenceNum + 1) + " is string property." );
+        sequenceNum++;
+    } else if (!loadInProgress && typeof nextStep[sequenceNum] == "number" ) {
+        console.debuglog("sequence: " + (sequenceNum + 1) + " is number property." );
+        sequenceNum++;
+    } else {
+        //console.debuglog("sequence: " + (sequenceNum + 1) + " is " + typeof nextStep[sequenceNum] + "property." );
+    }
 
-}).next(function() {
-    page.render(appliId + G_IMAGE_SUFFIX);
-
-}).next(function() {
-
-    page.injectJs("./" + appliId + "_conf.js");
-
-    nextUrl = page.evaluate(function(){
-        var arr = document.getElementById(G_IFRAME_ID);
-        return arr.src;
-    });
-
-}).next(function() {
-
-    return pageOpenLoadWait(nextUrl , page );
-
-}).next(function() {
-
-    page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
-
-}).next(function() {
-
-    nextUrl = getMypageUrl(page);
-
-}).next(function() {
-    t = Date.now();
-    page.open(nextUrl,function(status) {
-        if( status != "success" ) {
-        } else {
-            t = Date.now() - t;
-            console.log('Loading time ' + t + ' msec');
-            page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
-        }
-        phantom.exit();
-    });
-
-}).error(function(args){
-    console.log(JSON.stringify(args));
-    page.render('error-screenshot.png');
-    page.close();
-    phantom.exit(1);
-});
-
+}, 50 );
