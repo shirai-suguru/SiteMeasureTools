@@ -70,10 +70,12 @@ var nextStep = [
     //#2
     imgNum = 1,
     //#3
+    responseMsec = 0,
+    //#4
     function() {
         page.open(G_GREE_LOGIN_URL);
     },
-    //#4
+    //#5
     function() {
 
         page.injectJs("./" + appliId + "_conf.js");
@@ -85,7 +87,7 @@ var nextStep = [
             login_pass.value = G_PASSWORD;
         });
     },
-    //#5
+    //#6
     function() {
         //Login
         page.evaluate(function() {
@@ -109,15 +111,15 @@ var nextStep = [
             }
         });
     },
-    //#6
+    //#7
     function() {
         page.open( appliUrl );
     },
-    //#7
+    //#8
     function() {
         page.render(appliId + G_IMAGE_SUFFIX);
     },
-    //#8
+    //#9
     function() {
         page.injectJs("./" + appliId + "_conf.js");
 
@@ -126,30 +128,46 @@ var nextStep = [
             return arr.src;
         });
     },
-    //#9
+    //#10
     function() {
         page.open( nextUrl );
     },
-    //#10
+    //#11
     function() {
         page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
     },
-    //#11
+    //#12
     function() {
         nextUrl = getMypageUrl(page);
     },
-    //#12
+    //#13
     function() {
         t = Date.now();
         page.open(nextUrl,function(status) {
             if( status != "success" ) {
             } else {
-                t = Date.now() - t;
-                console.log('Loading time ' + t + ' msec');
+                responseMsec = Date.now() - t;
+                console.log('Loading time ' + responseMsec + ' msec');
                 page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
             }
-            phantom.exit();
         });
+    },
+    //#14
+    function() {
+        page.injectJs("./" + appliId + "_conf.js");
+
+        nextUrl  = G_GRAPH_POST_URL;
+        var data = 'number=' + responseMsec;
+        page.open(nextUrl, 'post', data, function(status) {
+            if( status != "success" ) {
+            } else {
+                console.debuglog("Growthforecast post success");
+            }
+        });
+    },
+    //#15
+    function() {
+        phantom.exit();
     },
 ];
 
