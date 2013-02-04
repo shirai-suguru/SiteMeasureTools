@@ -56,6 +56,12 @@ page.onConsoleMessage = function(msg) {
     console.debuglog("console.log" + msg );
 };
 
+page.onResourceReceived = function(response) {
+    if ( response.redirectURL != null ) {
+        console.debuglog('Response (#' + response.id + ', stage "' + response.stage + '"): ' + response.redirectURL);
+    }
+};
+
 // Global variables
 var nextUrl = "";
 var imgNum = 1;
