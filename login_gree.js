@@ -150,12 +150,24 @@ var nextStep = [
                 console.log('Loading time ' + responseMsec + ' msec');
                 page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
             }
-//            phantom.exit();
         });
     },
     //#14
     function() {
-            phantom.exit();
+        page.injectJs("./" + appliId + "_conf.js");
+
+        nextUrl  = G_GRAPH_POST_URL;
+        var data = 'number=' + responseMsec;
+        page.open(nextUrl, 'post', data, function(status) {
+            if( status != "success" ) {
+            } else {
+                console.debuglog("Growthforecast post success");
+            }
+        });
+    },
+    //#15
+    function() {
+        phantom.exit();
     },
 ];
 
