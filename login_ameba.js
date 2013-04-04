@@ -92,12 +92,7 @@ var nextStep = [
     function() {
         //Login
         page.evaluate(function() {
-            var delForm = document.getElementById('login_login');
-            if( delForm !== null ) {
-                delForm.parentNode.removeChild(delForm);
-            }
-            var loginFormDiv = document.getElementById('sbmtSection');
-            var loginForm    = loginFormDiv.firstChild;
+            var loginForm    = document.getElementsByName('srvLoginForm')[0];
             if( loginForm !== null ) {
                 loginForm.submit();
             } else {
@@ -118,30 +113,24 @@ var nextStep = [
     },
     //#8
     function() {
-    page.evaluate(function() {
-      console.log(document.querySelectorAll('html')[0].outerHTML);
-      console.log(document.cookie);
-    });
         page.render(appliId + G_IMAGE_SUFFIX);
     },
     //#9
     function() {
-        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
+        page.open( appli );
     },
     //#10
     function() {
-        page.open( appli );
+//        page.evaluate(function() {
+//            console.log(document.querySelectorAll('html')[0].outerHTML);
+//        });
+        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
     },
     //#11
     function() {
-        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
+        nextUrl = getMypageUrl(page);
     },
     //#12
-    function() {
-        nextUrl = getMypageUrl(page);
-        nextUrl = appli;
-    },
-    //#13
     function() {
         t = Date.now();
         page.open(nextUrl,function(status) {
@@ -153,7 +142,7 @@ var nextStep = [
             }
         });
     },
-    //#14
+    //#13
     function() {
         page.injectJs("./" + appliId + "_conf.js");
 
