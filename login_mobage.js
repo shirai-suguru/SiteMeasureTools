@@ -130,18 +130,18 @@ var nextStep = [
         });
     },
     //#12
-    function() {
-        page.injectJs("./" + appliId + "_conf.js");
-
-        nextUrl  = G_GRAPH_POST_URL;
-        var data = 'number=' + responseMsec;
-        page.open(nextUrl, 'post', data, function(status) {
-            if( status != "success" ) {
-            } else {
-                console.debuglog("Growthforecast post success");
-            }
-        });
-    },
+//    function() {
+//        page.injectJs("./" + appliId + "_conf.js");
+//
+//        nextUrl  = G_GRAPH_POST_URL;
+//        var data = 'number=' + responseMsec;
+//        page.open(nextUrl, 'post', data, function(status) {
+//            if( status != "success" ) {
+//            } else {
+//                console.debuglog("Growthforecast post success");
+//            }
+//        });
+//    },
     //#13
     function() {
         //Raid Check
@@ -223,6 +223,7 @@ var nextStep = [
             var attackForm = document.forms[0];
 
             if ( attackForm != undefined ) {
+                console.log("submit!");
                 attackForm.submit();
             }
         });
