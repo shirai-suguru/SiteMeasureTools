@@ -165,7 +165,11 @@ var nextStep = [
     },
     //#14
     function() {
-        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fraidboss%2FRaidbossAssistList%2F";
+//    page.evaluate(function() {
+//      console.log(document.querySelectorAll('html')[0].outerHTML);
+//    });
+//        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fraidboss%2FRaidbossAssistList%2F";
+        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fisland%2FIslandRaidbossAssistList%2F"
         page.open(nextUrl);
     },
     //#15
@@ -219,19 +223,35 @@ var nextStep = [
     //#20
     function() {
         //Raid Attack BP0
-        page.evaluate(function() {
-            var attackForm = document.forms[0];
+//        page.evaluate(function() {
+//            var attackForm = document.forms[0];
+//
+//            if ( attackForm != undefined ) {
+//                attackForm.submit();
+//            }
+//        });
+        nextUrl = page.evaluate(function() {
+            var arr = document.getElementById("assist_btn");
+            var nextLink = "";
 
-            if ( attackForm != undefined ) {
-                attackForm.submit();
+            if ( arr != undefined ) {
+                nextLink = arr.firstChild.firstChild.href;
             }
+            return nextLink;
         });
+
+
+    },
+    //#20
+    function() {
+        console.debuglog(nextUrl);
+        page.open(nextUrl);
     },
     //#21
     function() {
         page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
         phantom.exit();
-    },
+    }
 ];
 
 var nextLoop = setInterval( function() {
