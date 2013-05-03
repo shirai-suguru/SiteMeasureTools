@@ -1,5 +1,5 @@
 // const
-const CONSOLE_LOG_ON   = false;
+const CONSOLE_LOG_ON   = true;
 
 console.debuglog = function(msg){
     if( CONSOLE_LOG_ON == true ) {
@@ -28,6 +28,7 @@ if(!phantom.injectJs(appliId + "_conf.js")){
 
 // page settings
 var page = require('webpage').create();
+var async = require('async');
 
 // UserAgent
 page.settings.userAgent = G_USERAGENT;
@@ -62,6 +63,22 @@ page.onLoadFinished = function(){
     loadInProgress = false;
     console.debuglog("href:" + page.evaluate(function(){return location.href}));
 };
+
+async.series([
+    function (callback) {
+        console.debuglog("waterfall start!");
+        page.open(G_GREE_LOGIN_URL,function(status){
+            callback(null, "1");
+        });
+    },
+    function(callback){
+        page.render(appliId + "_test_" + G_IMAGE_SUFFIX);
+    }
+    ],function (err) {
+        console.log("err");
+    }
+);
+
 
 // Main
 var nextStep = [
