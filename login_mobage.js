@@ -7,6 +7,14 @@ console.debuglog = function(msg){
     }
 };
 
+console.htmlDump = function(page) {
+    if ( CONSOLE_LOG_ON == true ) {
+        page.evaluate(function() {
+          console.log(document.querySelectorAll('html')[0].outerHTML);
+        });
+    }
+}
+
 var args = require('system').args;
 
 var appliId  = 'XXXXX';
@@ -165,9 +173,7 @@ var nextStep = [
     },
     //#14
     function() {
-//    page.evaluate(function() {
-//      console.log(document.querySelectorAll('html')[0].outerHTML);
-//    });
+//        console.htmlDump(page);
 //        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fraidboss%2FRaidbossAssistList%2F";
         nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fisland%2FIslandRaidbossAssistList%2F"
         page.open(nextUrl);
