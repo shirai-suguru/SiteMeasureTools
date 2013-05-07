@@ -229,22 +229,24 @@ var nextStep = [
     //#20
     function() {
         //Raid Attack BP0
-//        page.evaluate(function() {
-//            var attackForm = document.forms[0];
-//
-//            if ( attackForm != undefined ) {
-//                attackForm.submit();
-//            }
-//        });
-        nextUrl = page.evaluate(function() {
-            var arr = document.getElementById("assist_btn");
-            var nextLink = "";
+        page.evaluate(function() {
+            var attackForm = document.forms[0];
 
-            if ( arr != undefined ) {
-                nextLink = arr.firstChild.firstChild.href;
+            if ( attackForm != undefined ) {
+                attackForm.submit();
             }
-            return nextLink;
         });
+//        console.htmlDump(page);
+//
+//        nextUrl = page.evaluate(function() {
+//            var arr = document.getElementById("assist_btn");
+//            var nextLink = "";
+//
+//            if ( arr != undefined ) {
+//                nextLink = arr.firstChild.firstChild.href;
+//            }
+//            return nextLink;
+//        });
 
 
     },
