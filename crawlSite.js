@@ -2,37 +2,20 @@
  *
  **/
 
+// library import
+var fs    = require('fs');
+var utils = require('utils');
 
-// TODO move to conf file
-
+// UserAgent Setting
 const USERAGET  = 'Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A403 Safari/8536.25';
-const LOGIN_URL = 'http://t.gree.jp/?action=login&ignore_sso=1&backto=';
-const LOGIN_NAME_FORM     = 'user_mail';
-const LOGIN_PASSWORD_FORM = 'user_password';
 
-const LOGIN_NAME     = 'suguster.goodoo@ezweb.ne.jp';
-const LOGIN_PASSWORD = 'sig6fig';
-const APPLI_URL      = 'http://pf.gree.net/58124';
-const FRAME_NAME     = 'app_58124';
-const GRAPH_POST_URL = 'http://localhost:5125/api/socialgame_response/gree_58124/mypage_response';
-
-
-var isUseFrame  = true;
-
+// Global varibales
+var isUseFrame  = false;      // default
 var pageOpenDate = null;
 var pageResponseMiliSeconds   = null;
 var myPageResponseMiliSeconds = null;
 
-
-function fillLoginForm(that) {
-    that.fill('form[method="post"]',{
-        'user_mail':     LOGIN_NAME,
-        'user_password': LOGIN_PASSWORD
-    }, true);
-}
-
-
-
+// casper instance and default setting
 var casper = require('casper').create({
     verbose: true,
     logLevel: "debug",
@@ -49,10 +32,35 @@ var casper = require('casper').create({
     }
 });
 
+
+// platform select
+var platform = casper.cli.get("platform");
+if ( platform == undefined ) {
+    casper.echo(' To run with  --platform=XXXX ','ERROR');
+    casper.exit();
+}
+eval(fs.read('./' + platform + '_conf.js'));
+
+// application select
+var appSelect = casper.cli.get("app");
+if ( appSelect == undefined ) {
+    casper.echo(' To run with  --app=XXXX ','ERROR');
+    casper.exit();
+}
+var appFilePath = './' + appSelect + '_conf.js';
+if( utils.isJsFile(appFilePath) == false ) {
+    casper.echo('You muse specify js file ! ' + appFilePath  + 'is not js file! ','ERROR');
+    casper.exit();
+}
+eval(fs.read(appFilePath));
+
+// Measure Response
 casper.on("load.finished", function() {
     pageResponseMiliSeconds = new Date() - pageOpenDate;
     this.echo(this.requestUrl + " loaded in " + pageResponseMiliSeconds + "ms", "PARAMETER");
 });
+
+
 
 pageOpenDate = new Date();
 casper.start(LOGIN_URL);
@@ -79,7 +87,7 @@ casper.thenEvaluate(function(){
 
 if( isUseFrame === true ){
     casper.withFrame(FRAME_NAME,function(){
-        this.echo(this.getTitle(), "PARAMETER"););
+        this.echo(this.getTitle(), "PARAMETER");
     });
 }
 
@@ -87,11 +95,18 @@ casper.then(function(){
     this.capture('APPLI_top.png');
 });
 
+if ( isUseFrame == true ) {
+    casper.withFrame(FRAME_NAME,function(){
+        pageOpenDate = new Date();
+        clickMypageLink(this);
+    });
 
-casper.withFrame(FRAME_NAME,function(){
-    pageOpenDate = new Date();
-    this.click('div#pageInner div a');
-});
+} else {
+    casper.thenEvaluate(function(){
+        pageOpenDate = new Date();
+        clickMypageLink(this);
+    });
+}
 
 casper.then(function(){
     myPageResponseMiliSeconds = pageResponseMiliSeconds;
