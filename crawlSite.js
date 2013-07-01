@@ -102,7 +102,7 @@ if ( isUseFrame == true ) {
     });
 
 } else {
-    casper.thenEvaluate(function(){
+    casper.then(function(){
         pageOpenDate = new Date();
         clickMypageLink(this);
     });
