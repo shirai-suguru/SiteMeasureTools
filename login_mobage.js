@@ -75,6 +75,8 @@ page.onLoadFinished = function(){
 var nextStep = [
     //#1
     nextUrl = "",
+    //#1-1
+    gotoSequence = 0,
     //#2
     imgNum = 1,
     //#3
@@ -173,9 +175,11 @@ var nextStep = [
     },
     //#14
     function() {
+        gotoSequence = sequenceNum - 1;
 //        console.htmlDump(page);
-//        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fraidboss%2FRaidbossAssistList%2F";
-        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fisland%2FIslandRaidbossAssistList%2F"
+//        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fbossguildbattle%2FRaidbossAssistList%2F";
+        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fraidboss%2FRaidbossAssistList%2F";
+//        nextUrl = "http://sp.pf.mbga.jp/12010455?url=http%3A%2F%2Fmguildbattle.croozsocial.jp%2Fisland%2FIslandRaidbossAssistList%2F"
         page.open(nextUrl);
     },
     //#15
@@ -252,12 +256,13 @@ var nextStep = [
     },
     //#20
     function() {
-        console.debuglog(nextUrl);
-        page.open(nextUrl);
+//        console.debuglog(nextUrl);
+//        page.open(nextUrl);
+        sequenceNum = gotoSequence;
     },
     //#21
     function() {
-        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
+//        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
         phantom.exit();
     }
 ];
