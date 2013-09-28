@@ -1,5 +1,5 @@
 // const
-const CONSOLE_LOG_ON   = false;
+const CONSOLE_LOG_ON   = true;
 
 console.debuglog = function(msg){
     if( CONSOLE_LOG_ON == true ) {
@@ -170,7 +170,7 @@ var nextStep = [
         console.debuglog(raidFlag);
 
         if ( raidFlag != true ) {
-            phantom.exit();
+            sequenceNum = 20;
         }
     },
     //#14
@@ -254,13 +254,52 @@ var nextStep = [
 
 
     },
-    //#20
+    //#21
     function() {
 //        console.debuglog(nextUrl);
 //        page.open(nextUrl);
         sequenceNum = gotoSequence;
     },
-    //#21
+    //#22
+    function() {
+        page.open(appliUrl);
+    },
+    //#23
+    function() {
+        //Next Link
+        nextUrl = page.evaluate(function() {
+            return document.querySelector("div.section_sub.section_margin ul.lst_main li.lst_btn a").href;
+        });
+    },
+    //#24
+    function() {
+        page.open(nextUrl);
+    },
+    //#25
+    function() {
+        nextUrl = page.evaluate(function(){
+            var yellText = document.querySelector("div#greeting_list div.wrap ul.lst_main li").textContent;
+            if (yellText.toString() == "エール履歴がありません"){
+                return document.querySelector("li#prf_yell_btn div.btn_base a").href;
+            } else {
+                return appliUrl;
+            }
+
+        });
+    },
+    //#26
+    function() {
+        page.open(nextUrl);
+    },
+    //#27
+    function() {
+        page.evaluate(function(){
+            var textObj = document.querySelector("form div.margin_top_10 input.message_area.fnt_medium");
+            textObj.value = "招待コード[av07rewo]です。アイテムもらえるよ";
+            document.forms[0].submit();
+        });
+    },
+    //#28
     function() {
 //        page.render(appliId + "_" + imgNum++ + G_IMAGE_SUFFIX);
         phantom.exit();
